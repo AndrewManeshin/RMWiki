@@ -2,6 +2,9 @@ package com.example.rmwiki.characters.presentation
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import com.example.rmwiki.characters.domain.CharacterDomain
+import com.example.rmwiki.characters.domain.CharactersInteractor
+import com.example.rmwiki.characters.domain.CharactersResult
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -23,7 +26,7 @@ class CharactersViewModelTest {
     @Test
     fun `test init and re-init`() = runBlocking {
 
-        interactor.changeExpectedResult(CharactersResult.Success())
+        interactor.changeExpectedResult(CharactersResult.Success(emptyList()))
 
         viewModel.init(isFirstRun = true)
 
@@ -46,10 +49,10 @@ class CharactersViewModelTest {
             CharactersResult.Success(
                 listOf(
                     CharacterDomain(
-                        id = "1",
+                        id = 1,
                         name = "Rick",
                         status = "alive",
-                        image = "image"
+                        imageUrl = "image"
                     )
                 )
             )
@@ -59,10 +62,10 @@ class CharactersViewModelTest {
 
         assertEquals(true, communication.charactersList[0] is CharacterUi.Progress)
         assertEquals(
-            CharactersUi.Base(
+            CharacterUi.Base(
                 name = "Rick",
                 status = "alive",
-                image = "image"
+                imageUrl = "image"
             ), communication.charactersList[1]
         )
         assertEquals(2, communication.timesShowList)
@@ -86,10 +89,10 @@ class CharactersViewModelTest {
             CharactersResult.Success(
                 listOf(
                     CharacterDomain(
-                        id = "1",
+                        id = 1,
                         name = "Rick",
                         status = "alive",
-                        image = "image"
+                        imageUrl = "image"
                     )
                 )
             )
@@ -99,10 +102,10 @@ class CharactersViewModelTest {
 
         assertEquals(true, communication.charactersList[0] is CharacterUi.Progress)
         assertEquals(
-            CharactersUi.Base(
+            CharacterUi.Base(
                 name = "Rick",
                 status = "alive",
-                image = "image"
+                imageUrl = "image"
             ), communication.charactersList[1]
         )
 
@@ -110,22 +113,22 @@ class CharactersViewModelTest {
             CharactersResult.Success(
                 listOf(
                     CharacterDomain(
-                        id = "2",
+                        id = 2,
                         name = "Morty",
                         status = "alive",
-                        image = "image"
+                        imageUrl = "image"
                     )
                 )
             )
         )
-        viewModel.fetchMoreCharacters()
+        viewModel.fetchMoreCharacters(1)
 
         assertEquals(true, communication.charactersList[2] is CharacterUi.BottomProgress)
         assertEquals(
-            CharactersUi.Base(
+            CharacterUi.Base(
                 name = "Morty",
                 status = "alive",
-                image = "image"
+                imageUrl = "image"
             ), communication.charactersList[3]
         )
     }
@@ -138,10 +141,10 @@ class CharactersViewModelTest {
             CharactersResult.Success(
                 listOf(
                     CharacterDomain(
-                        id = "1",
+                        id = 1,
                         name = "Rick",
                         status = "alive",
-                        image = "image"
+                        imageUrl = "image"
                     )
                 )
             )
@@ -151,21 +154,21 @@ class CharactersViewModelTest {
 
         assertEquals(true, communication.charactersList[0] is CharacterUi.Progress)
         assertEquals(
-            CharactersUi.Base(
+            CharacterUi.Base(
                 name = "Rick",
                 status = "alive",
-                image = "image"
+                imageUrl = "image"
             ), communication.charactersList[1]
         )
 
         interactor.changeExpectedResult(
-            CharactersResult.Falure("no internet connection")
+            CharactersResult.Failure("no internet connection")
         )
-        viewModel.fetchMoreCharacters()
+        viewModel.fetchMoreCharacters(1)
 
         assertEquals(true, communication.charactersList[2] is CharacterUi.BottomProgress)
         assertEquals(
-            CharactersUi.BottomError("no internet connection"), communication.charactersList[3]
+            CharacterUi.BottomError("no internet connection"), communication.charactersList[3]
         )
     }
 
@@ -185,7 +188,7 @@ class CharactersViewModelTest {
 
     private class TestCharactersInteractor : CharactersInteractor {
 
-        private var result = CharactersResult.Success()
+        private var result: CharactersResult = CharactersResult.Success(emptyList())
         private var countOfCharacters = 1
 
         val initCalledList = mutableListOf<CharactersResult>()
@@ -198,7 +201,7 @@ class CharactersViewModelTest {
             result = newResult
         }
 
-        override suspend fun init(isFirstRun: Boolean): CharactersResult {
+        override suspend fun init(): CharactersResult {
             initCalledList.add(result)
             return result
         }
