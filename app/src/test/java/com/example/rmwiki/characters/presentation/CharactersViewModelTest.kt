@@ -23,12 +23,13 @@ class CharactersViewModelTest {
     @Test
     fun `test init and re-init`() = runBlocking {
 
-        interactor.changeExpectedResult(CharactersResult.Success())
+        interactor.changeExpectedResult(listOf(CharacterItem.Base("", "", "")))
 
         viewModel.init(isFirstRun = true)
 
-        assertEquals(true, communication.charactersList[0] is CharacterUi.Progress)
+        assertEquals(true, communication.charactersList[0] is CharacterUi.FullScreenProgress)
         assertEquals(true, communication.charactersList[1] is CharacterUi.Base)
+        assertEquals(true, communication.charactersList[2] is CharacterUi.BottomProgress)
         assertEquals(2, communication.timesShowList)
 
         viewModel.init(isFirstRun = false)
@@ -36,46 +37,48 @@ class CharactersViewModelTest {
         assertEquals(true, communication.charactersList[1] is CharacterUi.Base)
         assertEquals(2, communication.timesShowList)
         assertEquals(1, interactor.initCalledList.size)
-        assertEquals(true, interactor.initCalledList[0] is CharactersResult.Success)
+        assertEquals(CharacterItem.Base("", "", ""), interactor.initCalledList[0])
     }
 
     @Test
     fun `test fetch characters with success`() = runBlocking {
 
         interactor.changeExpectedResult(
-            CharactersResult.Success(
-                listOf(
-                    CharacterDomain(
-                        id = "1",
-                        name = "Rick",
-                        status = "alive",
-                        image = "image"
-                    )
+            listOf(
+                CharacterItem.Base(
+                    name = "Rick",
+                    status = "alive",
+                    imageUrl = "image"
                 )
             )
         )
 
         viewModel.fetchCharacters()
 
-        assertEquals(true, communication.charactersList[0] is CharacterUi.Progress)
+        assertEquals(true, communication.charactersList[0] is CharacterUi.FullScreenProgress)
         assertEquals(
-            CharactersUi.Base(
+            CharacterUi.Base(
                 name = "Rick",
                 status = "alive",
-                image = "image"
+                imageUrl = "image"
             ), communication.charactersList[1]
         )
+        assertEquals(true, communication.charactersList[2] is CharacterUi.BottomProgress)
         assertEquals(2, communication.timesShowList)
     }
 
     @Test
-    fun `test fetch characters with error`() = runBlocking {
-        interactor.changeExpectedResult(CharactersResult.Failure("no internet connection"))
+    fun `test fetch characters with fullscreen error`() = runBlocking {
+
+        interactor.changeExpectedResult(listOf(CharacterItem.Failure("no internet connection")))
 
         viewModel.fetchCharacters()
 
-        assertEquals(true, communication.charactersList[0] is CharacterUi.Progress)
-        assertEquals(CharacterUi.Error("no internet connection"), communication.charactersList[1])
+        assertEquals(true, communication.charactersList[0] is CharacterUi.FullScreenProgress)
+        assertEquals(
+            CharacterUi.FullScreenError("no internet connection"),
+            communication.charactersList[1]
+        )
     }
 
     @Test
@@ -83,51 +86,47 @@ class CharactersViewModelTest {
         interactor.changeCountOfCharacters(2)
 
         interactor.changeExpectedResult(
-            CharactersResult.Success(
-                listOf(
-                    CharacterDomain(
-                        id = "1",
-                        name = "Rick",
-                        status = "alive",
-                        image = "image"
-                    )
+            listOf(
+                CharacterItem.Base(
+                    name = "Rick",
+                    status = "alive",
+                    imageUrl = "image"
                 )
+
             )
         )
 
         viewModel.fetchCharacters()
 
-        assertEquals(true, communication.charactersList[0] is CharacterUi.Progress)
+        assertEquals(true, communication.charactersList[0] is CharacterUi.FullScreenProgress)
         assertEquals(
-            CharactersUi.Base(
+            CharacterUi.Base(
                 name = "Rick",
                 status = "alive",
-                image = "image"
+                imageUrl = "image"
             ), communication.charactersList[1]
         )
+        assertEquals(true, communication.charactersList[2] is CharacterUi.BottomProgress)
 
         interactor.changeExpectedResult(
-            CharactersResult.Success(
-                listOf(
-                    CharacterDomain(
-                        id = "2",
-                        name = "Morty",
-                        status = "alive",
-                        image = "image"
-                    )
+            listOf(
+                CharacterItem.Base(
+                    name = "Morty",
+                    status = "alive",
+                    imageUrl = "image"
                 )
             )
         )
-        viewModel.fetchMoreCharacters()
+        viewModel.fetchMoreCharacters(1)
 
-        assertEquals(true, communication.charactersList[2] is CharacterUi.BottomProgress)
         assertEquals(
-            CharactersUi.Base(
+            CharacterUi.Base(
                 name = "Morty",
                 status = "alive",
-                image = "image"
+                imageUrl = "image"
             ), communication.charactersList[3]
         )
+        assertEquals(true, communication.charactersList[4] is CharacterUi.BottomProgress)
     }
 
     @Test
@@ -135,37 +134,34 @@ class CharactersViewModelTest {
         interactor.changeCountOfCharacters(2)
 
         interactor.changeExpectedResult(
-            CharactersResult.Success(
-                listOf(
-                    CharacterDomain(
-                        id = "1",
-                        name = "Rick",
-                        status = "alive",
-                        image = "image"
-                    )
+            listOf(
+                CharacterItem.Base(
+                    name = "Rick",
+                    status = "alive",
+                    imageUrl = "image"
                 )
             )
         )
 
         viewModel.fetchCharacters()
 
-        assertEquals(true, communication.charactersList[0] is CharacterUi.Progress)
+        assertEquals(true, communication.charactersList[0] is CharacterUi.FullScreenProgress)
         assertEquals(
-            CharactersUi.Base(
+            CharacterUi.Base(
                 name = "Rick",
                 status = "alive",
-                image = "image"
+                imageUrl = "image"
             ), communication.charactersList[1]
         )
+        assertEquals(true, communication.charactersList[2] is CharacterUi.BottomProgress)
 
         interactor.changeExpectedResult(
-            CharactersResult.Falure("no internet connection")
+            listOf(CharacterItem.Failure("no internet connection"))
         )
-        viewModel.fetchMoreCharacters()
+        viewModel.fetchMoreCharacters(1)
 
-        assertEquals(true, communication.charactersList[2] is CharacterUi.BottomProgress)
         assertEquals(
-            CharactersUi.BottomError("no internet connection"), communication.charactersList[3]
+            CharacterUi.BottomError("no internet connection"), communication.charactersList[3]
         )
     }
 
@@ -185,25 +181,25 @@ class CharactersViewModelTest {
 
     private class TestCharactersInteractor : CharactersInteractor {
 
-        private var result = CharactersResult.Success()
+        private var result: List<CharacterItem> = emptyList()
         private var countOfCharacters = 1
 
-        val initCalledList = mutableListOf<CharactersResult>()
+        val initCalledList = mutableListOf<CharacterItem>()
 
         fun changeCountOfCharacters(newCount: Int) {
             countOfCharacters = newCount
         }
 
-        fun changeExpectedResult(newResult: CharactersResult) {
+        fun changeExpectedResult(newResult: List<CharacterItem>) {
             result = newResult
         }
 
-        override suspend fun init(isFirstRun: Boolean): CharactersResult {
-            initCalledList.add(result)
+        override suspend fun init(): List<CharacterItem> {
+            initCalledList.addAll(result)
             return result
         }
 
-        override suspend fun fetchCharacters(): CharactersResult = result
+        override suspend fun fetchCharacters(): List<CharacterItem> = result
 
         override fun needToLoadMoreData(lastVisibleItemPosition: Int): Boolean =
             lastVisibleItemPosition < countOfCharacters
