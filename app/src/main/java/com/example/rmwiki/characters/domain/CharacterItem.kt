@@ -13,7 +13,7 @@ sealed class CharacterItem {
 
     abstract fun <T> map(mapper: Mapper<T>): T
 
-    data class Base(
+    data class Success(
         private val name: String,
         private val status: String,
         private val imageUrl: String

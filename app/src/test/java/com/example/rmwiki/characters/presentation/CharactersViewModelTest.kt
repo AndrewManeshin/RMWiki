@@ -33,7 +33,7 @@ class CharactersViewModelTest {
     @Test
     fun `test init and re-init`(): Unit = runBlocking {
 
-        interactor.changeExpectedResult(listOf(CharacterItem.Base("", "", "")))
+        interactor.changeExpectedResult(listOf(CharacterItem.Success("", "", "")))
 
         viewModel.init(isFirstRun = true)
         dispatchers.await()
@@ -48,7 +48,7 @@ class CharactersViewModelTest {
         assertEquals(true, communication.charactersList[1] is CharacterUi.Base)
         assertEquals(2, communication.timesShowList)
         assertEquals(1, interactor.initCalledList.size)
-        assertEquals(CharacterItem.Base("", "", ""), interactor.initCalledList[0])
+        assertEquals(CharacterItem.Success("", "", ""), interactor.initCalledList[0])
     }
 
     @Test
@@ -56,7 +56,7 @@ class CharactersViewModelTest {
 
         interactor.changeExpectedResult(
             listOf(
-                CharacterItem.Base(
+                CharacterItem.Success(
                     name = "Rick",
                     status = "alive",
                     imageUrl = "image"
@@ -98,7 +98,7 @@ class CharactersViewModelTest {
 
         interactor.changeExpectedResult(
             listOf(
-                CharacterItem.Base(
+                CharacterItem.Success(
                     name = "Rick",
                     status = "alive",
                     imageUrl = "image"
@@ -121,7 +121,7 @@ class CharactersViewModelTest {
 
         interactor.changeExpectedResult(
             listOf(
-                CharacterItem.Base(
+                CharacterItem.Success(
                     name = "Morty",
                     status = "alive",
                     imageUrl = "image"
@@ -147,7 +147,7 @@ class CharactersViewModelTest {
 
         interactor.changeExpectedResult(
             listOf(
-                CharacterItem.Base(
+                CharacterItem.Success(
                     name = "Rick",
                     status = "alive",
                     imageUrl = "image"
@@ -169,7 +169,7 @@ class CharactersViewModelTest {
 
         interactor.changeExpectedResult(
             listOf(
-                CharacterItem.Base(
+                CharacterItem.Success(
                     name = "Rick",
                     status = "alive",
                     imageUrl = "image"
