@@ -2,21 +2,22 @@ package com.example.rmwiki.characters.presentation
 
 sealed class CharacterUi {
 
-    class Base(
+    data class Base(
         private val name: String,
         private val status: String,
         private val imageUrl: String
     ) : CharacterUi()
 
 
-    class Error(
+    data class FullScreenError(
         private val message: String
     ) : CharacterUi()
 
-    class BottomError(
+    data class BottomError(
         private val message: String
     ) : CharacterUi()
 
-    class BottomProgress() : CharacterUi()
-    class Progress() : CharacterUi()
+    object BottomProgress : CharacterUi()
+
+    object FullScreenProgress : CharacterUi()
 }

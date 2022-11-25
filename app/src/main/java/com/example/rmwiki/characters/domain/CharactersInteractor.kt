@@ -2,19 +2,19 @@ package com.example.rmwiki.characters.domain
 
 interface CharactersInteractor {
 
-    suspend fun init(): CharactersResult
+    suspend fun init(): List<CharacterItem>
 
-    suspend fun fetchCharacters(): CharactersResult
+    suspend fun fetchCharacters(): List<CharacterItem>
 
     fun needToLoadMoreData(lastVisibleItemPosition: Int): Boolean
 
     class Base() : CharactersInteractor {
 
-        override suspend fun init(): CharactersResult {
+        override suspend fun init(): List<CharacterItem> {
             TODO("Not yet implemented")
         }
 
-        override suspend fun fetchCharacters(): CharactersResult {
+        override suspend fun fetchCharacters(): List<CharacterItem> {
             TODO("Not yet implemented")
         }
 

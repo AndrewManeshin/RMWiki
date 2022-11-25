@@ -2,12 +2,13 @@ package com.example.rmwiki.characters.presentation
 
 import androidx.lifecycle.*
 import com.example.rmwiki.characters.domain.CharactersInteractor
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class CharactersViewModel(
     private val communication: CharactersCommunication,
-    private val interactor: CharactersInteractor
+    private val interactor: CharactersInteractor,
+    private val mapper: CharactersUiMapper,
+    private val dispatchers: DispatchersList
 ) : Init, FetchCharacters, Observe, ViewModel() {
 
     private var lastVisibleItemPos = -1
@@ -18,15 +19,17 @@ class CharactersViewModel(
 
     override fun init(isFirstRun: Boolean) {
         if (isFirstRun) {
-            viewModelScope.launch(Dispatchers.IO) {
-                interactor.init()
+            //TODO find solution to show fullscreen progress
+            communication.showList(listOf(CharacterUi.FullScreenProgress))
+            viewModelScope.launch(dispatchers.io()) {
+                communication.showList(mapper.map(interactor.init()))
             }
         }
     }
 
     override fun fetchCharacters() {
-        viewModelScope.launch(Dispatchers.IO) {
-            interactor.fetchCharacters()
+        viewModelScope.launch(dispatchers.io()) {
+            communication.showList(mapper.map(interactor.fetchCharacters()))
         }
     }
 

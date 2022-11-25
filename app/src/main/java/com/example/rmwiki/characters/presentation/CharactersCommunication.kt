@@ -1,6 +1,7 @@
 package com.example.rmwiki.characters.presentation
 
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 
 interface CharactersCommunication : Observe {
@@ -9,12 +10,14 @@ interface CharactersCommunication : Observe {
 
     class Base : CharactersCommunication {
 
+        private val liveData = MutableLiveData<List<CharacterUi>>()
+
         override fun showList(list: List<CharacterUi>) {
-            TODO("Not yet implemented")
+            liveData.postValue(list)
         }
 
         override fun observeList(owner: LifecycleOwner, observer: Observer<List<CharacterUi>>) {
-            TODO("Not yet implemented")
+            liveData.observe(owner, observer)
         }
     }
 }
