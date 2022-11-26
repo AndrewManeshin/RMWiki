@@ -7,7 +7,7 @@ sealed class CharacterItem {
             name: String,
             status: String,
             imageUrl: String,
-            errorMessage: String
+            exception: DomainException?
         ): T
     }
 
@@ -19,11 +19,11 @@ sealed class CharacterItem {
         private val imageUrl: String
     ) : CharacterItem() {
 
-        override fun <T> map(mapper: Mapper<T>) = mapper.map(name, status, imageUrl, "")
+        override fun <T> map(mapper: Mapper<T>) = mapper.map(name, status, imageUrl, null)
     }
 
-    class Failure(private val message: String) : CharacterItem() {
+    class Failure(private val exception: DomainException) : CharacterItem() {
 
-        override fun <T> map(mapper: Mapper<T>) = mapper.map("", "", "", message)
+        override fun <T> map(mapper: Mapper<T>) = mapper.map("", "", "", exception)
     }
 }

@@ -4,6 +4,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import com.example.rmwiki.characters.domain.CharactersInteractor
 import com.example.rmwiki.characters.domain.CharacterItem
+import com.example.rmwiki.characters.domain.DomainException
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.*
 import org.junit.Assert.assertEquals
@@ -81,13 +82,13 @@ class CharactersViewModelTest {
     @Test
     fun `test fetch characters with fullscreen error`() = runBlocking {
 
-        interactor.changeExpectedResult(listOf(CharacterItem.Failure("no internet connection")))
+        interactor.changeExpectedResult(listOf(CharacterItem.Failure(DomainException.NoInternetConnection())))
 
         viewModel.fetchCharacters()
         dispatchers.await()
 
         assertEquals(
-            CharacterUi.FullScreenError("no internet connection"),
+            CharacterUi.FullScreenError("No internet connection"),
             communication.charactersList[0]
         )
     }
@@ -174,7 +175,7 @@ class CharactersViewModelTest {
                     status = "alive",
                     imageUrl = "image"
                 ),
-                CharacterItem.Failure("no internet connection")
+                CharacterItem.Failure(DomainException.NoInternetConnection())
             )
         )
 
@@ -189,7 +190,7 @@ class CharactersViewModelTest {
             ), communication.charactersList[2]
         )
         assertEquals(
-            CharacterUi.BottomError("no internet connection"), communication.charactersList[3]
+            CharacterUi.BottomError("No internet connection"), communication.charactersList[3]
         )
         assertEquals(2, communication.timesShowList)
     }

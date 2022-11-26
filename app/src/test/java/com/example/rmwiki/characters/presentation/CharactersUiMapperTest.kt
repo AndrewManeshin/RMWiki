@@ -1,6 +1,7 @@
 package com.example.rmwiki.characters.presentation
 
 import com.example.rmwiki.characters.domain.CharacterItem
+import com.example.rmwiki.characters.domain.DomainException
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -11,8 +12,8 @@ class CharactersUiMapperTest {
     @Test
     fun `test fullscreen error`() {
 
-        val actual = mapper.map(listOf(CharacterItem.Failure("error")))
-        val expected  = listOf(CharacterUi.FullScreenError("error"))
+        val actual = mapper.map(listOf(CharacterItem.Failure(DomainException.NoInternetConnection())))
+        val expected  = listOf(CharacterUi.FullScreenError("No internet connection"))
 
         assertEquals(expected, actual)
     }
@@ -39,12 +40,12 @@ class CharactersUiMapperTest {
         val actual = mapper.map(listOf(
             CharacterItem.Success("1", "1", "1"),
             CharacterItem.Success("2", "2", "2"),
-            CharacterItem.Failure("error")
+            CharacterItem.Failure(DomainException.NoInternetConnection())
         ))
         val expected  = listOf(
             CharacterUi.Base("1", "1", "1"),
             CharacterUi.Base("2", "2", "2"),
-            CharacterUi.BottomError("error"),
+            CharacterUi.BottomError("No internet connection"),
         )
 
         assertEquals(expected, actual)
