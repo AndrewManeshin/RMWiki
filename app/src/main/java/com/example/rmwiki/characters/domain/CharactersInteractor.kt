@@ -21,7 +21,7 @@ interface CharactersInteractor {
             repository.allCharacters()
         } catch (e: DomainException) {
             ArrayList<CharacterItem>().apply {
-                addAll(init())
+                addAll(repository.allCharacters())
                 add(CharacterItem.Failure(e))
             }
         }
