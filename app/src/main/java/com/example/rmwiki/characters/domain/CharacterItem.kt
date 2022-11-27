@@ -22,7 +22,7 @@ sealed class CharacterItem {
         override fun <T> map(mapper: Mapper<T>) = mapper.map(name, status, imageUrl, null)
     }
 
-    class Failure(private val exception: DomainException) : CharacterItem() {
+    data class Failure(private val exception: DomainException) : CharacterItem() {
 
         override fun <T> map(mapper: Mapper<T>) = mapper.map("", "", "", exception)
     }

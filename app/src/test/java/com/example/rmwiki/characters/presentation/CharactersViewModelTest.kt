@@ -11,11 +11,12 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
-class CharactersViewModelTest {
+class CharactersViewModelTest : BaseTest() {
 
     private lateinit var communication: TestCharactersCommunication
     private lateinit var interactor: TestCharactersInteractor
     private lateinit var dispatchers: TestDispatchersList
+    private lateinit var resources: ManageResourcesTest
     private lateinit var viewModel: CharactersViewModel
 
     @Before
@@ -23,10 +24,15 @@ class CharactersViewModelTest {
         communication = TestCharactersCommunication()
         interactor = TestCharactersInteractor()
         dispatchers = TestDispatchersList()
+        resources = ManageResourcesTest()
         viewModel = CharactersViewModel(
             communication = communication,
             interactor = interactor,
-            mapper = CharactersUiMapper(),
+            mapper = CharactersUiMapper(
+                CharacterUiMapper.Base(),
+                CharacterUiMapper.FullScreenError(resources),
+                CharacterUiMapper.BottomError(resources)
+            ),
             dispatchers
         )
     }
@@ -82,7 +88,7 @@ class CharactersViewModelTest {
     @Test
     fun `test fetch characters with fullscreen error`() = runBlocking {
 
-        interactor.changeExpectedResult(listOf(CharacterItem.Failure(DomainException.NoInternetConnection())))
+        interactor.changeExpectedResult(listOf(CharacterItem.Failure(DomainException.NoInternetConnection)))
 
         viewModel.fetchCharacters()
         dispatchers.await()
@@ -175,7 +181,7 @@ class CharactersViewModelTest {
                     status = "alive",
                     imageUrl = "image"
                 ),
-                CharacterItem.Failure(DomainException.NoInternetConnection())
+                CharacterItem.Failure(DomainException.NoInternetConnection)
             )
         )
 
@@ -241,7 +247,7 @@ class CharactersViewModelTest {
 
         override suspend fun fetchCharacters(): List<CharacterItem> = result
 
-        override fun needToLoadMoreData(lastVisibleItemPosition: Int): Boolean =
+        override suspend fun needToLoadMoreData(lastVisibleItemPosition: Int): Boolean =
             lastVisibleItemPosition < countOfCharacters
     }
 }

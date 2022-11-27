@@ -2,11 +2,11 @@ package com.example.rmwiki.characters.presentation
 
 import com.example.rmwiki.characters.domain.CharacterItem
 
-class CharactersUiMapper: Mapper<List<CharacterUi>, List<CharacterItem>> {
-
-    private val baseMapper = CharacterUiMapper.Base()
-    private val fullScreenErrorMapper = CharacterUiMapper.FullScreenError()
-    private val bottomErrorMapper = CharacterUiMapper.BottomError()
+class CharactersUiMapper(
+    private val baseMapper: CharacterUiMapper.Base,
+    private val fullScreenErrorMapper: CharacterUiMapper.FullScreenError,
+    private val bottomErrorMapper: CharacterUiMapper.BottomError
+) : Mapper<List<CharacterUi>, List<CharacterItem>> {
 
     override fun map(source: List<CharacterItem>): List<CharacterUi> {
         val result = ArrayList<CharacterUi>()

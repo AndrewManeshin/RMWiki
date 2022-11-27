@@ -35,9 +35,11 @@ class CharactersViewModel(
 
     override fun fetchMoreCharacters(lastVisibleItemPosition: Int) {
         if (lastVisibleItemPosition != lastVisibleItemPos) {
-            if (interactor.needToLoadMoreData(lastVisibleItemPosition)) {
-                lastVisibleItemPos = lastVisibleItemPosition
-                fetchCharacters()
+            viewModelScope.launch(dispatchers.io()) {
+                if (interactor.needToLoadMoreData(lastVisibleItemPosition)) {
+                    lastVisibleItemPos = lastVisibleItemPosition
+                    fetchCharacters()
+                }
             }
         }
     }

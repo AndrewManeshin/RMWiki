@@ -15,35 +15,27 @@ interface CharacterUiMapper<T : CharacterUi> : CharacterItem.Mapper<T> {
         ): CharacterUi.Base = CharacterUi.Base(name, status, imageUrl)
     }
 
-    class FullScreenError : CharacterUiMapper<CharacterUi.FullScreenError> {
+    class FullScreenError(
+        private val resources: ManageResources
+    ) : CharacterUiMapper<CharacterUi.FullScreenError> {
 
         override fun map(
             name: String,
             status: String,
             imageUrl: String,
             exception: DomainException?
-        ): CharacterUi.FullScreenError {
-            //TODO refactoring by DRY
-            return when (exception) {
-                is DomainException.NoInternetConnection -> CharacterUi.FullScreenError("No internet connection")
-                else -> CharacterUi.FullScreenError("Service is unavailable")
-            }
-        }
+        ) = CharacterUi.FullScreenError(exception!!.map(resources))
     }
 
-    class BottomError : CharacterUiMapper<CharacterUi.BottomError> {
+    class BottomError(
+        private val resources: ManageResources
+    ) : CharacterUiMapper<CharacterUi.BottomError> {
 
         override fun map(
             name: String,
             status: String,
             imageUrl: String,
             exception: DomainException?
-        ): CharacterUi.BottomError {
-            //TODO refactoring by DRY
-            return when (exception) {
-                is DomainException.NoInternetConnection -> CharacterUi.BottomError("No internet connection")
-                else -> CharacterUi.BottomError("Service is unavailable")
-            }
-        }
+        ) = CharacterUi.BottomError(exception!!.map(resources))
     }
 }

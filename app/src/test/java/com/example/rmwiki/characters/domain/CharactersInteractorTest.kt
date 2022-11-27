@@ -14,12 +14,12 @@ class CharactersInteractorTest {
     fun `set up`() {
         repository = CharactersRepositoryTest()
         interactor = CharactersInteractor.Base(
-            repoitory = repository
+            repository = repository
         )
     }
 
     @Test
-    fun `test init success`() {
+    fun `test init success`() = runBlocking {
 
         repository.changeExpectedCacheList(arrayListOf(CharacterItem.Success("1", "1", "1")))
 
@@ -60,7 +60,7 @@ class CharactersInteractorTest {
 
         assertEquals(expectedList, actualList)
         assertEquals(1, repository.fetchCharactersCalledCount)
-        assertEquals(1, repository.allCharactersCalledCount)
+        assertEquals(2, repository.allCharactersCalledCount)
     }
 
     @Test
@@ -86,7 +86,7 @@ class CharactersInteractorTest {
             CharacterItem.Success("1", "1", "1"),
             CharacterItem.Success("2", "2", "2"),
             CharacterItem.Success("3", "3", "3"),
-            CharacterItem.Failure(DomainException.NoInternetConnection())
+            CharacterItem.Failure(DomainException.NoInternetConnection)
         )
 
         assertEquals(expectedList, actualList)
@@ -123,9 +123,10 @@ class CharactersInteractorTest {
         override suspend fun fetchCharacters(): List<CharacterItem.Success> {
             fetchCharactersCalledCount++
             if (expectingError) {
-                throw DomainException.NoInternetConnection()
+                throw DomainException.NoInternetConnection
             }
-            return expectedCloudList
+            expectedCacheList.addAll(expectedCloudList)
+            return expectedCacheList
         }
     }
 }
