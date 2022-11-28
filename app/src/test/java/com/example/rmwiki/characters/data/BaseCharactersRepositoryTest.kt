@@ -1,34 +1,29 @@
 package com.example.rmwiki.characters.data
 
+import com.example.rmwiki.characters.data.cache.CharactersCacheDataSource
+import com.example.rmwiki.characters.data.cloud.CharactersCloudDataSource
 import com.example.rmwiki.characters.domain.CharacterItem
 import com.example.rmwiki.characters.domain.CharactersRepository
 import com.example.rmwiki.characters.domain.DomainException
+import com.example.rmwiki.characters.presentation.BaseTest
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.w3c.dom.CharacterData
 import java.net.UnknownHostException
 
-class BaseCharactersRepositoryTest {
+class BaseCharactersRepositoryTest : BaseTest() {
 
     private lateinit var repository: CharactersRepository
     private lateinit var cacheDataSource: TestCharactersCacheDataSource
     private lateinit var cloudDataSource: TestCharactersCloudDataSource
+    private lateinit var dispatchers: TestDispatchersList
 
     @Before
     fun `set up`() {
         cacheDataSource = TestCharactersCacheDataSource()
         cloudDataSource = TestCharactersCloudDataSource()
-        repository = BaseCharactersRepository(
-            cacheDataSource,
-            cloudDataSource,
-            CharacterDataToDomain()
-        )
-    }
 
-    @Test
-    fun `test all characters`() = runBlocking {
         cacheDataSource.replaceData(
             listOf(
                 CharacterData(
@@ -39,6 +34,20 @@ class BaseCharactersRepositoryTest {
                 CharacterData(2U, "Morty", "alive", "image", 2U),
             )
         )
+        cacheDataSource.lastCachedPage = 2
+
+        dispatchers = TestDispatchersList()
+        repository = BaseCharactersRepository(
+            cacheDataSource,
+            cloudDataSource,
+            CharacterDataToDomain(),
+            dispatchers
+        )
+    }
+
+    @Test
+    fun `test all characters`() = runBlocking {
+
 
         val actual = repository.allCharacters()
         val expected = listOf(
@@ -52,19 +61,16 @@ class BaseCharactersRepositoryTest {
 
     @Test
     fun `test fetch characters with cache Success`() = runBlocking {
-        cacheDataSource.replaceData(
-            listOf(
-                CharacterData(1U, "Rick", "alive", "image", 1U),
-                CharacterData(2U, "Morty", "alive", "image", 2U)
-            )
-        )
-        cacheDataSource.lastCachedPage = 2
         cloudDataSource.changeExpectedData(
             listOf(CharacterData(3U, "Jak", "alive", "image", 3U)),
             3
         )
 
-        assertEquals(CharacterItem.Success("Jak", "alive", "image"), repository.fetchCharacters())
+        dispatchers.await()
+        assertEquals(
+            listOf(CharacterItem.Success("Jak", "alive", "image")),
+            repository.fetchCharacters()
+        )
 
         val actual = repository.allCharacters()
         val expected = listOf(
@@ -82,12 +88,6 @@ class BaseCharactersRepositoryTest {
 
     @Test(expected = DomainException.NoInternetConnection::class)
     fun `fetch characters with cache Failure`() = runBlocking {
-        cacheDataSource.replaceData(
-            listOf(
-                CharacterData(1U, "Rick", "alive", "image", 1U),
-                CharacterData(2U, "Morty", "alive", "image", 2U)
-            )
-        )
         cloudDataSource.changeConnection(false)
 
         repository.fetchCharacters()

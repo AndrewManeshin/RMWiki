@@ -6,7 +6,6 @@ import com.example.rmwiki.characters.domain.CharactersInteractor
 import com.example.rmwiki.characters.domain.CharacterItem
 import com.example.rmwiki.characters.domain.DomainException
 import kotlinx.coroutines.*
-import kotlinx.coroutines.test.*
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -199,16 +198,6 @@ class CharactersViewModelTest : BaseTest() {
             CharacterUi.BottomError("No internet connection"), communication.charactersList[3]
         )
         assertEquals(2, communication.timesShowList)
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private class TestDispatchersList: DispatchersList {
-
-        private val scheduler = TestCoroutineScheduler()
-
-        override fun io() = StandardTestDispatcher(scheduler)
-
-        fun await() = scheduler.advanceUntilIdle()
     }
 
     private class TestCharactersCommunication : CharactersCommunication {
